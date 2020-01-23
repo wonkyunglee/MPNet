@@ -37,7 +37,7 @@ RESTORE_FROM = './deeplab_resnet.ckpt'
 
 def get_parser():
     """Parse all the arguments provided from the CLI.
-    
+
     Returns:
       A list of parsed arguments.
     """
@@ -160,7 +160,7 @@ def predict_multiscale(net, image, tile_size, scales, classes, flip_evaluation, 
     """
     image = image.data
     N_, C_, H_, W_ = image.shape
-    full_probs = np.zeros((N_, H_, W_, classes))  
+    full_probs = np.zeros((N_, H_, W_, classes))
     for scale in scales:
         scale = float(scale)
         scale_image = ndimage.zoom(image, (1.0, 1.0, scale, scale), order=1, prefilter=False)
@@ -212,7 +212,7 @@ def main():
         seg_model = eval('networks.' + args.model + '.Seg_Model')(
             num_classes=args.num_classes, recurrence=args.recurrence
         )
-        
+
         load_model(seg_model, args.restore_from)
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -250,11 +250,11 @@ def main():
             seg_pred = np.asarray(np.argmax(output, axis=3), dtype=np.uint8)
             seg_gt = np.asarray(label.numpy()[:,:size[0],:size[1]], dtype=np.int)
 
-            for i in range(image.size(0)): 
+            for i in range(image.size(0)):
                 output_im = PILImage.fromarray(seg_pred[i])
                 output_im.putpalette(palette)
                 output_im.save(os.path.join(save_path, name[i]+'.png'))
-        
+
             ignore_index = seg_gt != 255
             seg_gt = seg_gt[ignore_index]
             seg_pred = seg_pred[ignore_index]
@@ -272,7 +272,7 @@ def main():
 
         IU_array = (tp / np.maximum(1.0, pos + res - tp))
         mean_IU = IU_array.mean()
-        
+
         # getConfusionMatrixPlot(confusion_matrix)
         if engine.distributed and engine.local_rank == 0:
             print({'meanIU':mean_IU, 'IU_array':IU_array})

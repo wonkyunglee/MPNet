@@ -21,9 +21,9 @@ from utils.pyt_utils import load_model
 #        "Please install apex from https://www.github.com/nvidia/apex .")
 
 
-#from inplace_abn import InPlaceABN, InPlaceABNSync
-#BatchNorm2d = functools.partial(InPlaceABNSync, activation='identity')
-BatchNorm2d = nn.BatchNorm2d
+from inplace_abn import InPlaceABN, InPlaceABNSync
+BatchNorm2d = functools.partial(InPlaceABNSync, activation='identity')
+#BatchNorm2d = nn.BatchNorm2d
 
 def outS(i):
     i = int(i)
@@ -89,14 +89,14 @@ class PSPModule(nn.Module):
         self.stages = nn.ModuleList([self._make_stage(features, out_features, size) for size in sizes])
         self.bottleneck = nn.Sequential(
             nn.Conv2d(features+len(sizes)*out_features, out_features, kernel_size=3, padding=1, dilation=1, bias=False),
-            BatchNorm2d(out_features),
+            InPlaceABNSync(out_features),
             nn.Dropout2d(0.1)
             )
 
     def _make_stage(self, features, out_features, size):
         prior = nn.AdaptiveAvgPool2d(output_size=(size, size))
         conv = nn.Conv2d(features, out_features, kernel_size=1, bias=False)
-        bn = BatchNorm2d(out_features)
+        bn = InPlaceABNSync(out_features)
         return nn.Sequential(prior, conv, bn)
 
     def forward(self, feats):
@@ -117,7 +117,7 @@ class RCCAModule(nn.Module):
 
         self.bottleneck = nn.Sequential(
             nn.Conv2d(in_channels+inter_channels, out_channels, kernel_size=3, padding=1, dilation=1, bias=False),
-            BatchNorm2d(out_channels),
+            InPlaceABNSync(out_channels),
             nn.Dropout2d(0.1),
             nn.Conv2d(512, num_classes, kernel_size=1, stride=1, padding=0, bias=True)
             )
@@ -157,7 +157,7 @@ class ResNet(nn.Module):
 
         self.dsn = nn.Sequential(
             nn.Conv2d(1024, 512, kernel_size=3, stride=1, padding=1),
-            BatchNorm2d(512),
+            InPlaceABNSync(512),
             nn.Dropout2d(0.1),
             nn.Conv2d(512, num_classes, kernel_size=1, stride=1, padding=0, bias=True)
             )

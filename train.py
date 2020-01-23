@@ -42,6 +42,7 @@ NUM_STEPS = 40000
 POWER = 0.9
 RANDOM_SEED = 12345
 RESTORE_FROM = './dataset/MS_DeepLab_resnet_pretrained_init.pth'
+#RESTORE_FROM = './snapshots/CS_scenes_20000.pth'
 SAVE_NUM_IMAGES = 2
 SAVE_PRED_EVERY = 10000
 SNAPSHOT_DIR = './snapshots/'
